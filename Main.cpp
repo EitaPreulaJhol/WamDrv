@@ -1,7 +1,7 @@
 // Driver SHA256: 5AF1DAE21425DDA8311A2044209C308525135E1733EEFF5DD20649946C6E054C
 // Driver SHA1: 96F0DBF52AED0AFD43E44500116B04B674F7358E
 // Driver MD5: B6B51508AD6F462C45FE102C85D246C8
-// Vers„o: 1.1.100
+// Vers√£o: 1.1.100
 // Nome Original: wamsdk.sys
 
 #include <windows.h>
@@ -15,24 +15,24 @@
 #define IOCTL_ZAM_REGISTER_PROCESS      0x80002010 // Whitelist de processo para o driver
 #define IOCTL_ZAM_GET_IMAGE_SIG         0x80002018 // Assinatura de imagem PE
 #define IOCTL_ZAM_OPEN_PHYSICAL_DRIVE   0x8000201C // Acesso raw ao disco
-#define IOCTL_ZAM_DELETE_FILE           0x8000202C // Delete forÁado de arquivos
-#define IOCTL_ZAM_ENUM_MODULES          0x80002034 // EnumeraÁ„o de DLLs
+#define IOCTL_ZAM_DELETE_FILE           0x8000202C // Delete for√ßado de arquivos
+#define IOCTL_ZAM_ENUM_MODULES          0x80002034 // Enumera√ß√£o de DLLs
 #define IOCTL_ZAM_ENUM_PROCESSES        0x80002030 // Listagem de processos via Kernel
 #define IOCTL_ZAM_TERMINATE_PROCESS     0x80002044 // Kill process
 #define IOCTL_ZAM_OPEN_PROCESS          0x8000204C // Acesso a processos via Kernel
 #define IOCTL_ZAM_OPEN_THREAD           0x80002084 // Handle de Thread via Kernel
-#define IOCTL_ZAM_ENABLE_RT             0x8000208C // Liga proteÁ„o Real-Time do driver
-#define IOCTL_ZAM_DISABLE_RT            0x80002090 // Desliga proteÁ„o Real-Time do driver
-#define IOCTL_ZAM_GET_RT_STATUS         0x80002094 // Consulta status da proteÁ„o Real-Time do driver
+#define IOCTL_ZAM_ENABLE_RT             0x8000208C // Liga prote√ß√£o Real-Time do driver
+#define IOCTL_ZAM_DISABLE_RT            0x80002090 // Desliga prote√ß√£o Real-Time do driver
+#define IOCTL_ZAM_GET_RT_STATUS         0x80002094 // Consulta status da prote√ß√£o Real-Time do driver
 #define IOCTL_ZAM_CREATE_FILE_BYPASS    0x80002004 // Leitura de arquivos "travados"
 #define IOCTL_ZAM_CHECK_DISPATCH        0x80002008 // Checa hooks em functions de outros drivers
 #define IOCTL_ZAM_FIX_DISPATCH          0x8000200C // Restaura functions originais
-#define IOCTL_ZAM_GET_KERNEL_INFO       0x80002020 // Lista drivers e mÛdulos do Kernel
-#define IOCTL_ZAM_FIX_CRITICAL_FUNCS    0x80002028 // Limpa hooks de funÁıes vitais do Windows
-#define IOCTL_ZAM_BLOCK_UNSAFE_DLLS     0x80002050 // Bloqueia DLLs n„o assinadas/suspeitas
-#define IOCTL_ZAM_GET_DRIVER_PROTOCOL   0x80002054 // Verifica vers„o da API do driver
+#define IOCTL_ZAM_GET_KERNEL_INFO       0x80002020 // Lista drivers e m√≥dulos do Kernel
+#define IOCTL_ZAM_FIX_CRITICAL_FUNCS    0x80002028 // Limpa hooks de fun√ß√µes vitais do Windows
+#define IOCTL_ZAM_BLOCK_UNSAFE_DLLS     0x80002050 // Bloqueia DLLs n√£o assinadas/suspeitas
+#define IOCTL_ZAM_GET_DRIVER_PROTOCOL   0x80002054 // Verifica vers√£o da API do driver
 
-// Estruturas de requisiÁ„o para os IOCTLs (preciso melhorar muita coisa ainda)
+// Estruturas de requisi√ß√£o para os IOCTLs (preciso melhorar muita coisa ainda)
 #pragma pack(push, 1)
 
 struct ZAM_KERNEL_MODULE_INFO {
@@ -53,12 +53,12 @@ struct ZAM_INDEX_ENTRY {
 
 struct ZAM_MODULE_ENTRY {
 	// De acordo com alguns dumps que realizei aqui mesmo no .exe (em hex, no terminal), o driver parece usar um formato fixo de 528 bytes
-    // Mas ainda assim sÛ mostra a primeira entry,
+    // Mas ainda assim s√≥ mostra a primeira entry,
     WCHAR ModulePath[256]; // 512 bytes
     PVOID BaseAddress;     // 8 bytes
     ULONG ModuleSize;      // 4 bytes
     BYTE Padding[4];       // Alinhamento para fechar em 528 ou similar
-	// Talvez nesse padding exista mais alguma informaÁ„o, mas preciso confirmar isso no IDA ainda
+	// Talvez nesse padding exista mais alguma informa√ß√£o, mas preciso confirmar isso no IDA ainda
 };
 #pragma pack(pop)
 
@@ -99,7 +99,7 @@ public:
     WamSdk() : hDev(INVALID_HANDLE_VALUE) {}
     ~WamSdk() { Close(); }
 
-	// Conecta com o driver wamsdk.sys e obtÈm a handle para comunicaÁ„o via DeviceIoControl
+	// Conecta com o driver wamsdk.sys e obt√©m a handle para comunica√ß√£o via DeviceIoControl
     bool Connect() {
         hDev = CreateFileW(L"\\\\.\\amsdk", GENERIC_READ | GENERIC_WRITE,
             0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -109,13 +109,13 @@ public:
 	// Fecha a handle do driver ao finalizar
     void Close() { if (hDev != INVALID_HANDLE_VALUE) CloseHandle(hDev); }
 
-    // FunÁıes do Driver:
-	// 0x80002054 - Verifica vers„o da API do driver
+    // Fun√ß√µes do Driver:
+	// 0x80002054 - Verifica vers√£o da API do driver
     DWORD GetDriverProtocol() {
         DWORD protocolVersion = 0;
         DWORD bRet = 0;
 
-        // O driver escreve a vers„o (0x2BC) diretamente no buffer de saÌda
+        // O driver escreve a vers√£o (0x2BC) diretamente no buffer de sa√≠da
         if (DeviceIoControl(hDev, IOCTL_ZAM_GET_DRIVER_PROTOCOL,
             NULL, 0,
             &protocolVersion, sizeof(DWORD),
@@ -125,12 +125,12 @@ public:
         return 0;
     }
 
-	// 0x80002050 - Bloqueia DLLs n„o assinadas/suspeitas
+	// 0x80002050 - Bloqueia DLLs n√£o assinadas/suspeitas
     bool SetBlockUnsafeDlls(bool enable) {
         DWORD mode = enable ? 1 : 0;
         DWORD bRet = 0;
 
-        // … enviado apenas DWORD (4 bytes) com a flag
+        // √â enviado apenas DWORD (4 bytes) com a flag
         bool success = DeviceIoControl(hDev, IOCTL_ZAM_BLOCK_UNSAFE_DLLS,
             &mode, sizeof(DWORD),
             NULL, 0, &bRet, NULL);
@@ -144,10 +144,10 @@ public:
         return success;
     }
 
-	// 0x80002028 - Limpa hooks de funÁıes do Windows
+	// 0x80002028 - Limpa hooks de fun√ß√µes do Windows
     bool FixCriticalKernelFunctions() {
         DWORD bRet = 0;
-		// O driver usa seus prÛprios dados internos, ent„o o buffer de entrada pode ser nulo ou um comando de ativaÁ„o (preciso confirmar isso ainda...)
+		// O driver usa seus pr√≥prios dados internos, ent√£o o buffer de entrada pode ser nulo ou um comando de ativa√ß√£o (preciso confirmar isso ainda...)
         bool success = DeviceIoControl(hDev, IOCTL_ZAM_FIX_CRITICAL_FUNCS,
             NULL, 0,
             NULL, 0, &bRet, NULL);
@@ -162,7 +162,7 @@ public:
     }
 
     // TODO: validar no IDA se REALMENTE o driver retorna somente o ntoskrn.exe
-	// 0x80002020 - Lista drivers e mÛdulos do Kernel
+	// 0x80002020 - Lista drivers e m√≥dulos do Kernel
     void ListKernelModules() {
         const size_t bSize = 1024 * 128;
         std::vector<BYTE> buffer(bSize, 0);
@@ -190,7 +190,7 @@ public:
     bool FixDriverHooks(std::wstring driverName) {
         ZAM_DRIVER_TARGET_REQ req = { 0 };
 
-		// Copia o nome do driver (ex: L"\\Driver\\disk") para a estrutura de requisiÁ„o
+		// Copia o nome do driver (ex: L"\\Driver\\disk") para a estrutura de requisi√ß√£o
         wcscpy_s(req.DriverName, driverName.c_str());
 
         DWORD bRet = 0;
@@ -211,14 +211,14 @@ public:
 
     // 0x80002010 - Registro de processos como "seguros" para o driver
     bool RegisterSelf() {
-        DWORD myPid = GetCurrentProcessId(); // Envie o PID real, n„o um dummy
+        DWORD myPid = GetCurrentProcessId(); // Envie o PID real, n√£o um dummy
         DWORD bytesRet = 0;
         return DeviceIoControl(hDev, IOCTL_ZAM_REGISTER_PROCESS,
             &myPid, sizeof(DWORD),
             NULL, 0, &bytesRet, NULL);
     }
 
-	// 0x8000208C/0x80002090 - ProteÁ„o em tempo real do driver
+	// 0x8000208C/0x80002090 - Prote√ß√£o em tempo real do driver
     bool SetRealTimeProtection(bool enable) {
         DWORD b;
         return DeviceIoControl(hDev, enable ? IOCTL_ZAM_ENABLE_RT : IOCTL_ZAM_DISABLE_RT, NULL, 0, NULL, 0, &b, NULL);
@@ -239,7 +239,7 @@ public:
         return DeviceIoControl(hDev, IOCTL_ZAM_TERMINATE_PROCESS, &req, sizeof(req), NULL, 0, &b, NULL);
     }
 
-	// 0x80002008 - Checagem de hooks em funÁıes de drivers
+	// 0x80002008 - Checagem de hooks em fun√ß√µes de drivers
     void CheckDriverHooks(std::wstring driverName) {
         ZAM_CHECK_DRIVER_REQ req = { 0 };
         wcscpy_s(req.DriverName, driverName.c_str());
@@ -257,7 +257,7 @@ public:
             int count = bRet / sizeof(ZAM_DISPATCH_REPORT);
             for (int i = 0; i < count; i++) {
                 if (report[i].IsHooked) {
-                    printf("Hook detectado: Index[%d] | EndereÁo: 0x%p\n",
+                    printf("Hook detectado: Index[%d] | Endere√ßo: 0x%p\n",
                         report[i].MajorIndex, report[i].CurrentAddress);
                 }
             }
@@ -267,13 +267,13 @@ public:
         }
     }
 
-    // 0x80002030 - EnumeraÁ„o de processos
+    // 0x80002030 - Enumera√ß√£o de processos
     void ListProcesses() {
         const size_t bSize = 1024 * 10; // 10KB
         std::vector<BYTE> buffer(bSize, 0);
         DWORD bytesRet = 0;
 
-        // Informa o driver o tamanho disponÌvel no inÌcio do buffer
+        // Informa o driver o tamanho dispon√≠vel no in√≠cio do buffer
         *(DWORD*)buffer.data() = (DWORD)(bSize / 4);
 
         if (DeviceIoControl(hDev, IOCTL_ZAM_ENUM_PROCESSES,
@@ -282,7 +282,7 @@ public:
             &bytesRet, NULL)) {
 
             // O dispatcher escreve o contador no offset 0
-            // E a lista de PIDs comeÁa no offset 4 (MasterIrp + 2 wint_t)
+            // E a lista de PIDs come√ßa no offset 4 (MasterIrp + 2 wint_t)
             DWORD count = *(DWORD*)buffer.data();
             DWORD* pids = (DWORD*)(buffer.data() + 4);
 
@@ -305,7 +305,7 @@ public:
         HANDLE hOut = NULL;
         DWORD bRet = 0;
 
-        // Retorna o Handle no buffer de saÌda (OutputBuffer)
+        // Retorna o Handle no buffer de sa√≠da (OutputBuffer)
         if (DeviceIoControl(hDev, IOCTL_ZAM_CREATE_FILE_BYPASS,
             &req, sizeof(req),
             &hOut, sizeof(HANDLE),
@@ -315,7 +315,7 @@ public:
         return NULL;
     }
 
-	// 0x8000202C - Delete forÁado de arquivos
+	// 0x8000202C - Delete for√ßado de arquivos
     bool ForceDelete(std::wstring path) {
         ZAM_DELETE_REQ req = { 0 };
         wcscpy_s(req.Path, path.c_str());
@@ -331,8 +331,8 @@ public:
         return NULL;
     }
 
-	// TODO: validar no IDA o formato exato do buffer de resposta do driver para esse IOCTL, e ajustar a leitura conforme necess·rio
-    // 0x80002034 - EnumeraÁ„o de DLLs de um processo
+	// TODO: validar no IDA o formato exato do buffer de resposta do driver para esse IOCTL, e ajustar a leitura conforme necess√°rio
+    // 0x80002034 - Enumera√ß√£o de DLLs de um processo
     void ListProcessModules(DWORD pid) {
 		const size_t bSize = 1024 * 1024; // 1MB
         std::vector<BYTE> buffer(bSize, 0);
@@ -352,8 +352,8 @@ public:
             int count = 0;
 
             while (current + 520 <= buffer.data() + bRet) {
-				// LÍ o caminho do mÛdulo a partir do offset 4 da entrada atual
-				// TODO: esse achismo È baseada em dumps que fiz, mas preciso confirmar no IDA o formato exato do buffer de resposta do driver para esse IOCTL
+				// L√™ o caminho do m√≥dulo a partir do offset 4 da entrada atual
+				// TODO: esse achismo √© baseada em dumps que fiz, mas preciso confirmar no IDA o formato exato do buffer de resposta do driver para esse IOCTL
                 WCHAR* path = (WCHAR*)(current + 4);
 
                 if (path[0] != L'\0' && (path[1] == L':' || path[0] == L'\\')) {
@@ -365,7 +365,7 @@ public:
                     }
                 }
 
-				// AvanÁa para a prÛxima entry. O driver parece usar um formato fixo de 528 bytes por mÛdulo (na real n„o tenho certeza ainda)
+				// Avan√ßa para a pr√≥xima entry. O driver parece usar um formato fixo de 528 bytes por m√≥dulo (na real n√£o tenho certeza ainda)
                 current += 528;
 
                 if (count > 500) break;
@@ -383,17 +383,17 @@ int main() {
 
 	// Conecta com a handle do driver wamsdk.sys
 	// Certifique-se de que o driver esteja carregado
-    // N„o È muito difÌcil j· que esse driver tem assinatura WHCA
+    // N√£o √© muito dif√≠cil j√° que esse driver tem assinatura digital v√°lida
     if (!driver.Connect()) {
         printf("Nao foi possivel carregar o driver.\n");
         return 1;
     }
 
-	// "Inits" do driver: registro do prÛprio PID e disable da proteÁ„o em tempo real do driver
+	// "Inits" do driver: registro do pr√≥prio PID e disable da prote√ß√£o em tempo real do driver
     driver.RegisterSelf();
     driver.SetRealTimeProtection(false);
 
-	// A partir daqui, vocÍ pode criar as funÁıes para interagir com o driver conforme necess·rio.
+	// A partir daqui, voc√™ pode criar as fun√ß√µes para interagir com o driver conforme necess√°rio.
 
 	system("pause");
 
